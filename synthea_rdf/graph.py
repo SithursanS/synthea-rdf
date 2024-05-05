@@ -54,7 +54,7 @@ class GraphBuilder:
             "allergies.csv": self.convertAllergy,
             "careplans.csv": self.convertCarePlan,
             "claims.csv": self.convertClaim,
-            "claim_transactions.csv": self.convertClaimTransaction,
+            "claims_transactions.csv": self.convertClaimTransaction,
             "conditions.csv": self.convertCondition,
             "devices.csv": self.convertDevice,
             "encounters.csv": self.convertEncounter,
