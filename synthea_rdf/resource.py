@@ -88,6 +88,8 @@ class Allergy(Resource):
                 graph.add((allergy, SYN.encounterId, urnUuidLiteral(row["ENCOUNTER"])))
                 graph.add((allergy, SYN.system, plainLiteral(row["SYSTEM"])))
                 graph.add((allergy, SYN.description, plainLiteral(row["DESCRIPTION"])))
+                graph.add((allergy, SYN.code, snomedCtLiteral(row["CODE"])))
+                graph.add((allergy, SYN.category, snomedCtLiteral(row["CATEGORY"])))
 
                 # Object Properties
                 graph.add((allergy, SYN.isAbout, patient))
@@ -95,6 +97,23 @@ class Allergy(Resource):
                 graph.add((allergy, SYN.isDiagnosedDuring, encounter))
                 graph.add((encounter, SYN.hasDiagnosed, allergy))
 
+                # Check if REACTION1 column is not empty
+                if pd.notna(row["REACTION1"]):
+                    graph.add((allergy, SYN.hasReaction1, plainLiteral(row["REACTION1"])))
+                    graph.add((allergy, SYN.description1, plainLiteral(row["DESCRIPTION1"])))
+                    graph.add((allergy, SYN.severity, plainLiteral(row["SEVERITY1"])))
+
+                # Check if REACTION2 column is not empty
+                if pd.notna(row["REACTION2"]):
+                    graph.add((allergy, SYN.hasReaction2, plainLiteral(row["REACTION2"])))
+                    graph.add((allergy, SYN.description2, plainLiteral(row["DESCRIPTION2"])))
+                    graph.add((allergy, SYN.severity, plainLiteral(row["SEVERITY2"])))
+                
+                if pd.notna(row["STOP"]):
+                    graph.add((allergy, SYN.endDate, dateLiteral(row["STOP"])))
+
+                if pd.notna(row["TYPE"]):
+                    graph.add((allergy, SYN.type, plainLiteral(row["TYPE"])))
                 bar()
 
 
@@ -288,6 +307,7 @@ class ClaimTransaction(Resource):
                 # Data Properties
                 graph.add((claimtransaction, RDF.type, SYN.ClaimTransaction))
                 graph.add((claimtransaction, SYN.id, urnUuidLiteral(row["ID"])))
+                graph.add((claimtransaction, SYN.amount, floatLiteral(row["AMOUNT"])))
                 graph.add(
                     (claimtransaction, SYN.claimId, urnUuidLiteral(row["CLAIMID"]))
                 )
@@ -357,6 +377,8 @@ class Condition(Resource):
                 # Data Properties
                 graph.add((condition, RDF.type, SYN.Condition))
                 graph.add((condition, SYN.startDate, dateLiteral(row["START"])))
+                if pd.notna(row["STOP"]):
+                    graph.add((condition, SYN.endDateTime, dateLiteral(row["STOP"])))
                 graph.add((condition, SYN.patientId, urnUuidLiteral(row["PATIENT"])))
                 graph.add(
                     (condition, SYN.encounterId, urnUuidLiteral(row["ENCOUNTER"]))
@@ -814,6 +836,9 @@ class Patient(Resource):
                 graph.add((patient, SYN.address, plainLiteral(row["ADDRESS"])))
                 graph.add((patient, SYN.city, plainLiteral(row["CITY"])))
                 graph.add((patient, SYN.state, plainLiteral(row["STATE"])))
+
+                if pd.notna(row["COUNTY"]):
+                    graph.add((patient, SYN.county, plainLiteral(row["COUNTY"])))
                 graph.add(
                     (
                         patient,
@@ -1012,9 +1037,15 @@ class Procedure(Resource):
                 encounter = encounterUri(row["ENCOUNTER"])
 
                 # Data Properties
-                graph.add((procedure, RDF.type, SYN.Procedure))  # type
+                graph.add((procedure, RDF.type, SYN.Procedure))   
                 graph.add((procedure, SYN.startDateTime, dateTimeLiteral(row["START"])))
+                if pd.notna(row["STOP"]):
+                    graph.add((procedure, SYN.endDateTime, dateTimeLiteral(row["STOP"])))
                 graph.add((procedure, SYN.patientId, urnUuidLiteral(row["PATIENT"])))
+                if pd.notna(row["REASONCODE"]):
+                    graph.add((procedure, SYN.reasoncode, snomedCtLiteral(row["REASONCODE"])))
+                if pd.notna(row["REASONDESCRIPTION"]):
+                    graph.add((procedure, SYN.reasondescription, plainLiteral(row["REASONDESCRIPTION"])))
                 graph.add(
                     (procedure, SYN.encounterId, urnUuidLiteral(row["ENCOUNTER"]))
                 )
